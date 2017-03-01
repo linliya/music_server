@@ -1,0 +1,5 @@
+{
+  "dbHost": "127.0.0.1",
+  "dbProt": 27017,
+  "dbName": "musicDB"
+}

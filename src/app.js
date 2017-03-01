@@ -1,20 +1,22 @@
 var express = require('express');
 var path = require('path');
 var mongoose = require('mongoose')
-var _ = require('underscore')
 var Music = require('./models/music')
 var port = process.env.PORT || 3000;
 var app = express();
 
-mongoose.connect('mongodb://localhost/music')
+// 连接数据库
+mongoose.connect(`mongodb://${config.dbHost}:${config.dbPort}/${config.dbName}`, err => {
+  if (err) {
+    console.error(`连接mongo出错：${err}`);
+    process.exit(1);
+  }
+});
 
-app.set('views', './views/pages');
-app.set('view engine', 'jade');
-app.use(express.static(path.join(__dirname, 'bower_components')));
-app.locals.moment = require('moment')
-app.listen(port);
+app.listen(port, () => {
+  console.log('music started on port:' + port);
+});
 
-console.log('music started on port:' + port);
 
 app.get('/', function(req, res) {
   Music.fetch(function(err, music) {
