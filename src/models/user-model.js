@@ -9,6 +9,7 @@ let userSchema = new mongoose.Schema({
   email: { type: String, require: true }
 });
 
+
 let User = mongoose.model('User', userSchema);
 
 module.exports = User;

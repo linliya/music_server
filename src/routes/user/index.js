@@ -7,7 +7,77 @@ const helper = require('../../helper');
 
 router.use(bodyParser.json());
 
-router.get('/users', (req, res) => {
+// 用户登录
+router.post('/user/login', (req, res) => {
+  let userName = req.body.username;
+  let password = req.body.password;
+
+  User.findOne({username: userName})
+    .exec()
+    .then(user => {
+      if(password == user.password) {
+        res.send(user);
+        return;
+      }
+      res.sendStatus(400);
+      return;
+    })
+    .catch(err => {
+      console.log(err);
+      res.sendStatus(404);
+      return;
+    })
+});
+// 退出登录
+// router.delete('/user/logout', (req, res) => {
+// });
+
+// 用户注册
+router.post('/user/register', (req, res) => {
+  let schema = {
+    properties: {
+      username: {
+        type: 'string'
+      },
+      password: {
+        type: 'number'
+      },
+      name: {
+        type: 'string'
+      },
+      email: {
+        type: 'string'
+      },
+      tel: {
+        type: 'string'
+      }
+    },
+    required: ['username', 'password']
+  };
+  // 获取意欲新增用户内容，并进行检验
+  let newUser = req.body;
+  let [validated, errors] = helper.ajvCompileAndValid(schema, newUser);
+  if (!validated) {
+    res.status(400).json(errors);
+    return;
+  }
+
+  // 用户名长度应介于6-16之间
+  if(newUser.username.length < 6 || newUser.username.length > 16) {
+    res.status(400).json(errors);
+    return;
+  }
+
+  // 新增用户数据结构没问题，则进行数据库添加
+  User.create(newUser)
+    .then(() => {
+      res.send(201);
+    }, err => {
+      res.status(500).json(err);
+    });
+});
+// 获取所有用户信息
+router.get('/user', (req, res) => {
   User.find({}).sort({name: 'asc'}).exec()
     .then(list => {
       res.json(list);
@@ -17,7 +87,7 @@ router.get('/users', (req, res) => {
 });
 
 // 新增用户
-router.post('/users', (req, res) => {
+router.post('/user', (req, res) => {
   let schema = {
     properties: {
       username: {
@@ -61,7 +131,7 @@ router.post('/users', (req, res) => {
     });
 });
 
-router.get('/users/:id', (req, res) => {
+router.get('/user/:id', (req, res) => {
   // 获取id
   let id = req.params.id;
   // 根据id进行查询并处理结果
@@ -75,7 +145,7 @@ router.get('/users/:id', (req, res) => {
 });
 
 // 删除用户
-router.delete('/users/:id', (req, res) => {
+router.delete('/user/:id', (req, res) => {
   // 获取id
   let id = req.params.id;
   // 根据id进行数据的操作
@@ -89,7 +159,7 @@ router.delete('/users/:id', (req, res) => {
 });
 
 // 更新用户信息
-router.put('/users/:id', function(req, res) {
+router.put('/user/:id', function(req, res) {
   let schema = {
     properties: {
       username: {
