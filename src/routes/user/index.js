@@ -16,6 +16,7 @@ router.post('/user/login', (req, res) => {
     .exec()
     .then(user => {
       if(password == user.password) {
+        req.session.user = user;
         res.send(user);
         return;
       }
@@ -23,14 +24,11 @@ router.post('/user/login', (req, res) => {
       return;
     })
     .catch(err => {
-      console.log(err);
+      req.session.error = "用户名不存在";
       res.sendStatus(404);
       return;
     })
 });
-// 退出登录
-// router.delete('/user/logout', (req, res) => {
-// });
 
 // 用户注册
 router.post('/user/register', (req, res) => {
@@ -40,15 +38,6 @@ router.post('/user/register', (req, res) => {
         type: 'string'
       },
       password: {
-        type: 'number'
-      },
-      name: {
-        type: 'string'
-      },
-      email: {
-        type: 'string'
-      },
-      tel: {
         type: 'string'
       }
     },
@@ -56,29 +45,31 @@ router.post('/user/register', (req, res) => {
   };
   // 获取意欲新增用户内容，并进行检验
   let newUser = req.body;
+  let userName = newUser.username;
   let [validated, errors] = helper.ajvCompileAndValid(schema, newUser);
   if (!validated) {
     res.status(400).json(errors);
     return;
   }
 
-  // 用户名长度应介于6-16之间
-  if(newUser.username.length < 6 || newUser.username.length > 16) {
-    res.status(400).json(errors);
-    return;
-  }
+  // 确认用户名是否已存在
+  // User.findOne({username: userName}).exec()
+  //   .then(user => {
+  //     res.status(403).json(errors);
+  //   });
 
   // 新增用户数据结构没问题，则进行数据库添加
   User.create(newUser)
     .then(() => {
-      res.send(201);
+      res.send(newUser);
     }, err => {
       res.status(500).json(err);
     });
 });
+
 // 获取所有用户信息
 router.get('/user', (req, res) => {
-  User.find({}).sort({name: 'asc'}).exec()
+  User.find({}).sort({_id: 1}).exec()
     .then(list => {
       res.json(list);
     }, err => {
@@ -159,7 +150,7 @@ router.delete('/user/:id', (req, res) => {
 });
 
 // 更新用户信息
-router.put('/user/:id', function(req, res) {
+router.put('/user/:id', (req, res) => {
   let schema = {
     properties: {
       username: {
@@ -198,6 +189,7 @@ router.put('/user/:id', function(req, res) {
     }, err => {
       console.error(err);
       res.sendStatus(404);
+      return;
     });
 
   // 更新资源
@@ -208,8 +200,14 @@ router.put('/user/:id', function(req, res) {
     }, err => {
       console.error(err);
       res.sendStatus(500);
+      return;
     });
 
 });
+
+// router.delete('/user', (req, res) => {
+//   User.remove({ username : // } , function (err){
+//   });
+// })
 
 module.exports = router;
