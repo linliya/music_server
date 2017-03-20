@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 
@@ -12,22 +13,33 @@ router.post('/user/login', (req, res) => {
   let userName = req.body.username;
   let password = req.body.password;
 
-  User.findOne({username: userName})
-    .exec()
-    .then(user => {
-      if(password == user.password) {
-        req.session.user = user;
-        res.send(user);
+    User.findOne({username: userName})
+      .exec()
+      .then(user => {
+        if(password == user.password) {
+          let user1 = {username: user.username};
+          console.log('密码相同');
+          if(req.session.user) {
+            console.log('存在session');
+            res.send(req.session.user);
+            res.end();
+          }
+          else {
+            req.session.user = user1;
+            res.send(req.session.user);
+            res.end();
+          }
+        } else {
+          res.sendStatus(400);
+          return;
+        }
+      })
+
+      .catch(err => {
+        req.session.error = "用户名不存在";
+        res.sendStatus(404);
         return;
-      }
-      res.sendStatus(400);
-      return;
-    })
-    .catch(err => {
-      req.session.error = "用户名不存在";
-      res.sendStatus(404);
-      return;
-    })
+      })
 });
 
 // 用户注册
@@ -61,10 +73,15 @@ router.post('/user/register', (req, res) => {
   // 新增用户数据结构没问题，则进行数据库添加
   User.create(newUser)
     .then(() => {
-      res.send(newUser);
+      res.send({username: newUser.username});
     }, err => {
       res.status(500).json(err);
     });
+});
+
+router.delete('/user/logout', (req, res) => {
+  req.session.user = null;
+  res.sendStatus(204);
 });
 
 // 获取所有用户信息
