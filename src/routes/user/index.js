@@ -1,45 +1,56 @@
-
 const express = require('express');
 const router = express.Router();
 
 const bodyParser = require('body-parser');
+
+const expressJwt = require("express-jwt");
+const jwt = require("jsonwebtoken");
+const shortid = require("shortid");
+
 const User = require('../../models/user-model');
 const helper = require('../../helper');
 
 router.use(bodyParser.json());
 
 // 用户登录
-router.post('/user/login', (req, res) => {
+router.post('/user/login', (req, res, next) => {
   let userName = req.body.username;
   let password = req.body.password;
 
-    User.findOne({username: userName})
-      .exec()
-      .then(user => {
-        if(password == user.password) {
-          let user1 = {username: user.username};
-          console.log('密码相同');
-          if(req.session.user) {
-            console.log('存在session');
-            res.send(req.session.user);
-            res.end();
-          }
-          else {
-            req.session.user = user1;
-            res.send(req.session.user);
-            res.end();
-          }
-        } else {
-          res.sendStatus(400);
-          return;
-        }
-      })
+    // User.findOne({username: userName})
+    //   .exec()
+    //   .then(user => {
+    //     if(password == user.password) {
+    //       return;
+    //     }
+    //     res.sendStatus(400);
+    //     console.log('密码错误！');
+    //     next();
+    //   })
+    //
+    //   .catch(err => {
+    //     res.sendStatus(404);
+    //     console.log('用户名不存在');
+    //     next();
+    //   })
 
-      .catch(err => {
-        req.session.error = "用户名不存在";
+    User.findOne({ username: userName }, function(err, user) {
+      if (err) {
         res.sendStatus(404);
-        return;
-      })
+      }
+
+      if (!user) {
+        return res.sendStatus(404);
+      }
+
+      if (password !== user.password) {
+        return res.sendStatus(400);
+      }
+      // User has authenticated OK
+      let authToken = jwt.sign({username: userName}, "secret");
+      res.status(200).json({token: authToken, username: userName});
+    });
+
 });
 
 // 用户注册
@@ -73,7 +84,11 @@ router.post('/user/register', (req, res) => {
   // 新增用户数据结构没问题，则进行数据库添加
   User.create(newUser)
     .then(() => {
-      res.send({username: newUser.username});
+      // res.send({username: newUser.username});
+      res.status(200).json({
+        id: shortid.generate(),
+        username: userName,
+      });
     }, err => {
       res.status(500).json(err);
     });

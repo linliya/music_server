@@ -5,9 +5,9 @@ const userRouter = require('./routes/user');
 const config = require('../config.json');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
-const mongoStore = require('connect-mongo')(session);
+const expressJwt = require("express-jwt");
+const jwt = require("jsonwebtoken");
+const shortid = require("shortid");
 const app = express();
 
 //连接数据库
@@ -22,18 +22,14 @@ mongoose.connect(`mongodb://${config.dbHost}:${config.dbPort}/${config.dbName}`,
 app.use(cors());
 app.use(bodyParser());
 
-app.use(cookieParser('secret'));
-
-app.use(session({
-  name: 'sid',
-  secret: 'secret',
-  resave: true,
-  saveUninitialized: false,
-  // store: new mongoStore({url: 'mongodb://127.0.0.1:27017/session'}),
-  cookie: {
-    maxAge: 1000*60*1000
+app.use(expressJwt({secret: "secret"}).unless({path: ["/user/login"]}));
+app.use(function (err, req, res, next) {
+  if (err.name === "UnauthorizedError") {
+    res.status(401).send("invalid token");
   }
-}));
+});
+
+
 // 添加中间件
 app.use(userRouter);
 
