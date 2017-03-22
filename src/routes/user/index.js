@@ -17,39 +17,34 @@ router.post('/user/login', (req, res, next) => {
   let userName = req.body.username;
   let password = req.body.password;
 
-    // User.findOne({username: userName})
-    //   .exec()
-    //   .then(user => {
-    //     if(password == user.password) {
-    //       return;
-    //     }
-    //     res.sendStatus(400);
-    //     console.log('密码错误！');
-    //     next();
-    //   })
-    //
-    //   .catch(err => {
-    //     res.sendStatus(404);
-    //     console.log('用户名不存在');
-    //     next();
-    //   })
+  User.findOne({ username: userName }, function(err, user) {
+    if (err) {
+      res.sendStatus(404);
+    }
 
-    User.findOne({ username: userName }, function(err, user) {
-      if (err) {
-        res.sendStatus(404);
-      }
+    if (!user) {
+      return res.sendStatus(404);
+    }
 
-      if (!user) {
-        return res.sendStatus(404);
-      }
+    if (password !== user.password) {
+      return res.sendStatus(400);
+    }
 
-      if (password !== user.password) {
-        return res.sendStatus(400);
-      }
-      // User has authenticated OK
-      let authToken = jwt.sign({username: userName}, "secret");
-      res.status(200).json({token: authToken, username: userName});
+    // User has authenticated OK
+    let expires = Date.now() + 7*24*60*60*1000;
+    let authToken = jwt.sign({
+      expires: expires,
+      username: userName,
+      id: shortid.generate()
+    }, "secret");
+
+    res.status(200).json({
+      expires: expires,
+      token: authToken,
+      username: userName,
+      id: shortid.generate()
     });
+  });
 
 });
 
@@ -71,32 +66,28 @@ router.post('/user/register', (req, res) => {
   let userName = newUser.username;
   let [validated, errors] = helper.ajvCompileAndValid(schema, newUser);
   if (!validated) {
-    res.status(400).json(errors);
+    res.sendStatus(400);
     return;
   }
 
   // 确认用户名是否已存在
-  // User.findOne({username: userName}).exec()
-  //   .then(user => {
-  //     res.status(403).json(errors);
-  //   });
+  User.findOne({username: userName}, (err, user) => {
+    if(err) {
+      res.sendStatus(500);
+    }
 
-  // 新增用户数据结构没问题，则进行数据库添加
-  User.create(newUser)
-    .then(() => {
-      // res.send({username: newUser.username});
-      res.status(200).json({
-        id: shortid.generate(),
-        username: userName,
-      });
-    }, err => {
-      res.status(500).json(err);
-    });
-});
-
-router.delete('/user/logout', (req, res) => {
-  req.session.user = null;
-  res.sendStatus(204);
+    if(!user) {
+      User.create(newUser)
+        .then(() => {
+          res.sendStatus(200);
+        }, err => {
+          res.sendStatus(500);
+        });
+    } else {
+      // 用户已存在
+      res.sendStatus(403);
+    }
+  });
 });
 
 // 获取所有用户信息
@@ -105,7 +96,7 @@ router.get('/user', (req, res) => {
     .then(list => {
       res.json(list);
     }, err => {
-      res.status(500).json(err);
+      res.sendStatus(500);
     });
 });
 
@@ -148,9 +139,9 @@ router.post('/user', (req, res) => {
   // 新增用户数据结构没问题，则进行数据库添加
   User.create(newUser)
     .then(() => {
-      res.send(201);
+      res.sendStatus(201);
     }, err => {
-      res.status(500).json(err);
+      res.sendStatus(500);
     });
 });
 
@@ -209,7 +200,7 @@ router.put('/user/:id', (req, res) => {
   // 验证用户主体格式
   let [validated, errors] = helper.ajvCompileAndValid(schema, newUser);
   if (!validated) {
-    res.status(400).json(errors);
+    res.sendStatus(400);
     return;
   }
 
@@ -228,7 +219,7 @@ router.put('/user/:id', (req, res) => {
   User.findByIdAndUpdate(id, newUser).exec()
     .then(newUser => {
       res.json(newUser);
-      res.status = 204;
+      res.sendStatus(204)
     }, err => {
       console.error(err);
       res.sendStatus(500);

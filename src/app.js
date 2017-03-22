@@ -22,16 +22,31 @@ mongoose.connect(`mongodb://${config.dbHost}:${config.dbPort}/${config.dbName}`,
 app.use(cors());
 app.use(bodyParser());
 
-app.use(expressJwt({secret: "secret"}).unless({path: ["/user/login"]}));
-app.use(function (err, req, res, next) {
-  if (err.name === "UnauthorizedError") {
-    res.status(401).send("invalid token");
-  }
-});
+app.use(expressJwt({secret: "secret"}).unless({path: ["/user/login","/user/register", "/user"]}));
+
+// app.use(function (err, req, res, next) {
+//   if (err.name === "UnauthorizedError") {
+//     res.status(401).send("invalid token");
+//   }
+// });
 
 
 // 添加中间件
 app.use(userRouter);
+
+app.get('/user/update/:id', function(req, res) {
+  let token = req.headers.authorization;
+  console.log(token);
+  // if(token) {
+  //   User.find({}).sort({_id: 1}).exec()
+  //     .then(list => {
+  //       res.json(list);
+  //     }, err => {
+  //       res.status(500).json(err);
+  //     });
+  // }
+  // res.sendStatus(401);
+})
 
 app.listen(3000, () => {
   console.log('Server listening 3000...');
