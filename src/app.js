@@ -22,13 +22,23 @@ mongoose.connect(`mongodb://${config.dbHost}:${config.dbPort}/${config.dbName}`,
 app.use(cors());
 app.use(bodyParser());
 
-app.use(expressJwt({secret: "secret"}).unless({path: ["/user/login","/user/register", "/user"]}));
+app.use(expressJwt({
+  secret: "secret",
+  getToken: function fromHeaderOrQuerystring (req) {
+    if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Token') {
+        return req.headers.authorization.split(' ')[1];
+    } else if (req.query && req.query.token) {
+      return req.query.token;
+    }
+    return null;
+  }
+}).unless({path: ["/user/login","/user/register", "/user"]}));
 
-// app.use(function (err, req, res, next) {
-//   if (err.name === "UnauthorizedError") {
-//     res.status(401).send("invalid token");
-//   }
-// });
+app.use(function (err, req, res, next) {
+  if (err.name === "UnauthorizedError") {
+    res.status(401).send("invalid token");
+  }
+});
 
 
 // 添加中间件

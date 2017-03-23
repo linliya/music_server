@@ -7,6 +7,8 @@ const expressJwt = require("express-jwt");
 const jwt = require("jsonwebtoken");
 const shortid = require("shortid");
 
+const crypto = require('crypto');
+
 const User = require('../../models/user-model');
 const helper = require('../../helper');
 
@@ -17,6 +19,11 @@ router.post('/user/login', (req, res, next) => {
   let userName = req.body.username;
   let password = req.body.password;
 
+  //crypto模块功能是加密并生成各种散列,此处所示为MD5方式加密
+  var md5 = crypto.createHash('md5');
+  //加密后的密码
+  var end_psw= md5.update(password).digest('hex');
+
   User.findOne({ username: userName }, function(err, user) {
     if (err) {
       res.sendStatus(404);
@@ -26,11 +33,10 @@ router.post('/user/login', (req, res, next) => {
       return res.sendStatus(404);
     }
 
-    if (password !== user.password) {
+    if (end_psw !== user.password) {
       return res.sendStatus(400);
     }
 
-    // User has authenticated OK
     let expires = Date.now() + 7*24*60*60*1000;
     let authToken = jwt.sign({
       expires: expires,
@@ -64,6 +70,7 @@ router.post('/user/register', (req, res) => {
   // 获取意欲新增用户内容，并进行检验
   let newUser = req.body;
   let userName = newUser.username;
+  let password = newUser.password;
   let [validated, errors] = helper.ajvCompileAndValid(schema, newUser);
   if (!validated) {
     res.sendStatus(400);
@@ -76,6 +83,11 @@ router.post('/user/register', (req, res) => {
       res.sendStatus(500);
     }
 
+    var md5 = crypto.createHash('md5');   //crypto模块功能是加密并生成各种散列,此处所示为MD5方式加密
+    var end_psw= md5.update(password).digest('hex');//加密后的密码
+
+    newUser.password = end_psw;
+
     if(!user) {
       User.create(newUser)
         .then(() => {
@@ -84,10 +96,46 @@ router.post('/user/register', (req, res) => {
           res.sendStatus(500);
         });
     } else {
-      // 用户已存在
       res.sendStatus(403);
     }
   });
+});
+
+// 修改密码
+router.put('/user/update_psw/:id', (req, res) => {
+  let id = req.params.id;
+  let oldPassword = req.body.oldPassword;
+  let newPassword = req.body.newPassword;
+
+  var oldmd5 = crypto.createHash('md5');
+  var newmd5 = crypto.createHash('md5');
+
+  var end_old_psw= oldmd5.update(oldPassword).digest('hex');
+  var end_new_psw= newmd5.update(newPassword).digest('hex');
+
+  User.findById(id, (err, user) => {
+    if(err) {
+      return res.sendStatus(404);
+    }
+
+    if(!user) {
+      // 用户不存在
+      return res.sendStatus(404);
+    }
+
+    if(user.password !== end_old_psw) {
+      return res.sendStatus(400);
+    }
+
+    User.findByIdAndUpdate(id, {$set:{password: end_new_psw}}).exec()
+      .then(user => {
+        res.sendStatus(204);
+      }, err => {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      });
+  })
 });
 
 // 获取所有用户信息
@@ -228,9 +276,9 @@ router.put('/user/:id', (req, res) => {
 
 });
 
-// router.delete('/user', (req, res) => {
-//   User.remove({ username : // } , function (err){
-//   });
-// })
+router.delete('/user', (req, res) => {
+  User.remove({ username : /linli2222/ } , function (err){
+  });
+})
 
 module.exports = router;
