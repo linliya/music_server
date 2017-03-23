@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 
 const expressJwt = require("express-jwt");
 const jwt = require("jsonwebtoken");
-const shortid = require("shortid");
+// const shortid = require("shortid");
 
 const crypto = require('crypto');
 
@@ -20,9 +20,9 @@ router.post('/user/login', (req, res, next) => {
   let password = req.body.password;
 
   //crypto模块功能是加密并生成各种散列,此处所示为MD5方式加密
-  var md5 = crypto.createHash('md5');
+  let md5 = crypto.createHash('md5');
   //加密后的密码
-  var end_psw= md5.update(password).digest('hex');
+  let end_psw= md5.update(password).digest('hex');
 
   User.findOne({ username: userName }, function(err, user) {
     if (err) {
@@ -41,14 +41,14 @@ router.post('/user/login', (req, res, next) => {
     let authToken = jwt.sign({
       expires: expires,
       username: userName,
-      id: shortid.generate()
+      id: user._id
     }, "secret");
 
     res.status(200).json({
       expires: expires,
       token: authToken,
       username: userName,
-      id: shortid.generate()
+      id: user._id
     });
   });
 
@@ -83,8 +83,8 @@ router.post('/user/register', (req, res) => {
       res.sendStatus(500);
     }
 
-    var md5 = crypto.createHash('md5');   //crypto模块功能是加密并生成各种散列,此处所示为MD5方式加密
-    var end_psw= md5.update(password).digest('hex');//加密后的密码
+    let md5 = crypto.createHash('md5');   //crypto模块功能是加密并生成各种散列,此处所示为MD5方式加密
+    let end_psw= md5.update(password).digest('hex');//加密后的密码
 
     newUser.password = end_psw;
 
@@ -107,19 +107,21 @@ router.put('/user/update_psw/:id', (req, res) => {
   let oldPassword = req.body.oldPassword;
   let newPassword = req.body.newPassword;
 
-  var oldmd5 = crypto.createHash('md5');
-  var newmd5 = crypto.createHash('md5');
+  let oldmd5 = crypto.createHash('md5');
+  let newmd5 = crypto.createHash('md5');
 
-  var end_old_psw= oldmd5.update(oldPassword).digest('hex');
-  var end_new_psw= newmd5.update(newPassword).digest('hex');
+  let end_old_psw= oldmd5.update(oldPassword).digest('hex');
+  let end_new_psw= newmd5.update(newPassword).digest('hex');
 
   User.findById(id, (err, user) => {
     if(err) {
-      return res.sendStatus(404);
+      console.log('err');
+      return res.sendStatus(500);
     }
 
     if(!user) {
       // 用户不存在
+      console.log('用户不存在');
       return res.sendStatus(404);
     }
 
@@ -276,9 +278,9 @@ router.put('/user/:id', (req, res) => {
 
 });
 
-router.delete('/user', (req, res) => {
-  User.remove({ username : /linli2222/ } , function (err){
-  });
-})
+// router.delete('/user', (req, res) => {
+//   User.remove({ username : /linli/ } , function (err){
+//   });
+// })
 
 module.exports = router;
