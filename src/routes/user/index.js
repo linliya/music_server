@@ -104,8 +104,8 @@ router.post('/user/register', (req, res) => {
 // 修改密码
 router.put('/user/update_psw/:id', (req, res) => {
   let id = req.params.id;
-  let oldPassword = req.body.oldPassword;
-  let newPassword = req.body.newPassword;
+  let oldPassword = req.body.old_password;
+  let newPassword = req.body.new_password;
 
   let oldmd5 = crypto.createHash('md5');
   let newmd5 = crypto.createHash('md5');
@@ -133,7 +133,6 @@ router.put('/user/update_psw/:id', (req, res) => {
       .then(user => {
         res.sendStatus(204);
       }, err => {
-        console.error(err);
         res.sendStatus(500);
         return;
       });
