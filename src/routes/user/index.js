@@ -5,7 +5,9 @@ const bodyParser = require('body-parser');
 
 const expressJwt = require("express-jwt");
 const jwt = require("jsonwebtoken");
-// const shortid = require("shortid");
+
+const fm = require('formidable');
+const fs = require('fs');
 
 const crypto = require('crypto');
 
@@ -115,7 +117,6 @@ router.put('/user/update_psw/:id', (req, res) => {
 
   User.findById(id, (err, user) => {
     if(err) {
-      console.log('err');
       return res.sendStatus(500);
     }
 
@@ -138,6 +139,27 @@ router.put('/user/update_psw/:id', (req, res) => {
       });
   })
 });
+
+// 修改用户信息
+router.post('/user/upload/:id', (req, res) =>{
+  let form = new fm.IncomingForm();
+    // 5.2设置路径
+    // 注：把路径设置为静态路径下的uploads，需在public下创建uploads
+  form.uploadDir = path.join(__dirname,'/public/uploads')
+  form.parse(req);
+  form.on('end', () => {
+    console.log('upload success');
+  });
+
+  form.on('file', (field,file) => {
+    // 5.5.1 更改上传文件的名字
+    // 使用同步更改
+    fs.renameSync(file.path, path.join(form.uploadDir,'/'+id+'.png'))
+  // 第一个参数file.path表示上传的文件所在的路径
+  // 5.5.2发送给浏览器端(客户端)
+    res.send('./uploads/'+id+'.png');
+  })
+})
 
 // 获取所有用户信息
 router.get('/user', (req, res) => {
