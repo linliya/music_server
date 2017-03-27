@@ -146,7 +146,7 @@ router.post('/user/upload/:id', (req, res) =>{
   let id = req.params.id;
   let form = new fm.IncomingForm();
   // 设置路径
-  form.uploadDir = path.join(__dirname,'../../public/uploads')
+  form.uploadDir = path.join(__dirname,'../../../../music_s/public/uploads')
   form.parse(req);
   form.on('end', () => {
     console.log('upload success');
@@ -155,9 +155,49 @@ router.post('/user/upload/:id', (req, res) =>{
   form.on('file', (field, file) => {
     // 更改上传文件的名字
     fs.renameSync(file.path, path.join(form.uploadDir,'/' + id + '.png'))
-    res.send(form.uploadDir + '/' + id + '.png');
+    res.sendStatus(200);
   });
 })
+
+router.put('/user/update_msg/:id', (req, res) => {
+  let id = req.params.id;
+  let userMsg = req.body;
+
+  // 查找资源
+  let obj;
+  User.findById(id).exec()
+    .then(obj => {
+      obj = json(obj);
+    }, err => {
+      console.error(err);
+      res.sendStatus(404);
+      return;
+    });
+
+  // 更新资源
+  User.findByIdAndUpdate(id, userMsg).exec()
+    .then(user => {
+      res.send(user);
+    }, err => {
+      console.error(err);
+      res.sendStatus(500);
+      return;
+    });
+})
+// 获取用户信息
+router.get('/user/:id', (req, res) => {
+  // 获取id
+  let id = req.params.id;
+  // 根据id进行查询并处理结果
+  User.findById(id).exec()
+    .then(user => {
+      // res.json(user);
+      res.send(user);
+    }, err => {
+      console.error(err);
+      res.sendStatus(404);
+    });
+});
 
 // 获取所有用户信息
 router.get('/user', (req, res) => {
@@ -214,18 +254,18 @@ router.post('/user', (req, res) => {
     });
 });
 
-router.get('/user/:id', (req, res) => {
-  // 获取id
-  let id = req.params.id;
-  // 根据id进行查询并处理结果
-  User.findById(id).exec()
-    .then(user => {
-      res.json(user);
-    }, err => {
-      console.error(err);
-      res.sendStatus(404);
-    });
-});
+// router.get('/user/:id', (req, res) => {
+//   // 获取id
+//   let id = req.params.id;
+//   // 根据id进行查询并处理结果
+//   User.findById(id).exec()
+//     .then(user => {
+//       res.json(user);
+//     }, err => {
+//       console.error(err);
+//       res.sendStatus(404);
+//     });
+// });
 
 // 删除用户
 router.delete('/user/:id', (req, res) => {
