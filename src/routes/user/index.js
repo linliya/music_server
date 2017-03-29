@@ -11,6 +11,7 @@ const fs = require('fs');
 const path = require('path');
 
 const crypto = require('crypto');
+const request = require('request');
 
 const User = require('../../models/user-model');
 const helper = require('../../helper');
@@ -197,6 +198,29 @@ router.get('/user/:id', (req, res) => {
       console.error(err);
       res.sendStatus(404);
     });
+});
+
+router.post('/search', (req, res) => {
+    let s = req.body.s;
+    let offset = req.body.offset;
+    let limit = req.body.limit;
+    let type = req.body.type;
+    let apiurl = 'http://music.163.com/api/search/pc?s='+ s +'&offset='+ offset +'&limit=' + limit + '&type=' + type;
+    console.log(apiurl);
+    let options = {
+      headers: {cookie: 'appver=1.5.0.75771', referer: 'http://music.163.com'},
+      url: apiurl,
+      method: 'POST',
+      json: true
+    };
+
+    function callback(error, response, data) {
+      if (!error && response.statusCode == 200) {
+          console.log('------接口数据------',data);
+          res.json(data);
+      }
+    }
+    request(options, callback);
 });
 
 // 获取所有用户信息
