@@ -217,7 +217,7 @@ router.post('/search', (req, res) => {
     function callback(error, response, data) {
       if (!error && response.statusCode == 200) {
           console.log('------接口数据------',data);
-          res.json(data);
+          res.send(data);
       }
     }
     request(options, callback);

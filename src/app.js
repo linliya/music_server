@@ -2,6 +2,8 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const userRouter = require('./routes/user');
+const musicRouter = require('./routes/music');
+
 const config = require('../config.json');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -44,6 +46,8 @@ app.use(function (err, req, res, next) {
 
 // 添加中间件
 app.use(userRouter);
+app.use(musicRouter);
+
 
 app.get('/user/update/:id', function(req, res) {
   let token = req.headers.authorization;
