@@ -6,7 +6,8 @@ let musicSchema = new mongoose.Schema({
   singer: { type: String, require: true},
   album: { type: String, require: true},
   playTime: { type: String, require: true},
-  playUrl: { type: String, require: true}
+  playUrl: { type: String, require: true},
+  pic: {type: String, require: true}
 });
 
 

@@ -3,6 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const userRouter = require('./routes/user');
 const musicRouter = require('./routes/music');
+const playlistRouter = require('./routes/playlist');
 
 const config = require('../config.json');
 const cors = require('cors');
@@ -47,20 +48,13 @@ app.use(function (err, req, res, next) {
 // 添加中间件
 app.use(userRouter);
 app.use(musicRouter);
+app.use(playlistRouter);
+
 
 
 app.get('/user/update/:id', function(req, res) {
   let token = req.headers.authorization;
   console.log(token);
-  // if(token) {
-  //   User.find({}).sort({_id: 1}).exec()
-  //     .then(list => {
-  //       res.json(list);
-  //     }, err => {
-  //       res.status(500).json(err);
-  //     });
-  // }
-  // res.sendStatus(401);
 })
 
 app.listen(3000, () => {
