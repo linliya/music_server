@@ -82,9 +82,9 @@ router.get('/music', (req, res) => {
     });
 });
 
-router.delete('/music', (req, res) => {
-  Music.remove({ singer : /陈/ } , function (err){
-  });
-})
+// router.delete('/music', (req, res) => {
+//   Music.remove({ singer : /陈/ } , function (err){
+//   });
+// })
 
 module.exports = router;

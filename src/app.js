@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const userRouter = require('./routes/user');
 const musicRouter = require('./routes/music');
 const playlistRouter = require('./routes/playlist');
+const commentRouter = require('./routes/comment');
+
 
 const config = require('../config.json');
 const cors = require('cors');
@@ -49,8 +51,7 @@ app.use(function (err, req, res, next) {
 app.use(userRouter);
 app.use(musicRouter);
 app.use(playlistRouter);
-
-
+app.use(commentRouter);
 
 app.get('/user/update/:id', function(req, res) {
   let token = req.headers.authorization;
