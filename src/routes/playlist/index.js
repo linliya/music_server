@@ -11,9 +11,13 @@ const helper = require('../../helper');
 
 router.use(bodyParser.json());
 
-router.get('/playlist/all/:order', (req, res) => {
-    let order = req.params.order;
-    let apiurl = 'http://music.163.com/api/playlist/list?cat=%E5%85%A8%E9%83%A8&order='+ order +'&total=true&limit=1000';
+router.get('/playlist/', (req, res) => {
+    let order = req.query.order;
+    let cat = req.query.category;
+
+    let encode_cat = encodeURI(cat);
+
+    let apiurl = 'http://music.163.com/api/playlist/list?cat=' + encode_cat + '&order='+ order +'&total=true&limit=1000';
     let options = {
       headers: {cookie: 'appver=1.5.0.75771', referer: 'http://music.163.com'},
       url: apiurl,

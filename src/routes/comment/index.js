@@ -19,7 +19,6 @@ router.post('/comment/add/:id', (req, res) => {
   Comment.create(comment)
     .then(() => {
       res.sendStatus(200);
-      console.log('add success');
     }, err => {
       res.sendStatus(500);
     });
