@@ -5,7 +5,7 @@ const userRouter = require('./routes/user');
 const musicRouter = require('./routes/music');
 const playlistRouter = require('./routes/playlist');
 const commentRouter = require('./routes/comment');
-
+const playlistStoreRouter = require('./routes/playlist-store');
 
 const config = require('../config.json');
 const cors = require('cors');
@@ -50,8 +50,9 @@ app.use(function (err, req, res, next) {
 // 添加中间件
 app.use(userRouter);
 app.use(musicRouter);
-app.use(playlistRouter);
 app.use(commentRouter);
+app.use(playlistRouter);
+app.use(playlistStoreRouter);
 
 app.get('/user/update/:id', function(req, res) {
   let token = req.headers.authorization;

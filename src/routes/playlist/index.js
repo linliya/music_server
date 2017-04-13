@@ -54,42 +54,36 @@ router.get('/main/playlist', (req, res) => {
 // 歌单详情
 router.get('/playlist/:id', (req, res) => {
     let id = req.params.id;
-    // Playlist.findOne({id: id}, (err, playlist) => {
-    //   // 数据库存在该歌曲
-    //   if(playlist) {
-    //     return res.send(playlist);
-    //   }
 
       // 数据库中不存在,从接口获取
-      let apiurl = 'http://music.163.com/api/playlist/detail?id='+ id;
-      console.log(apiurl);
-      let options = {
-        headers: {cookie: 'appver=1.5.0.75771', referer: 'http://music.163.com'},
-        url: apiurl,
-        method: 'GET',
-        json: true
-      };
+    let apiurl = 'http://music.163.com/api/playlist/detail?id='+ id;
+    console.log(apiurl);
+    let options = {
+      headers: {cookie: 'appver=1.5.0.75771', referer: 'http://music.163.com'},
+      url: apiurl,
+      method: 'GET',
+      json: true
+    };
 
-      function callback(error, response, data) {
-        if (!error && response.statusCode == 200) {
-            // let playlist = {
-            //   id: id,
-            //   name: data.name,
-            //   author: data.result.creator.nickname
-            //   pic: data.result.creator.backgroundUrl
-            // };
-            //
-            // Playlist.create(playlist)
-            //   .then(() => {
-            //     res.sendStatus(201);
-            //   }, err => {
-            //     res.sendStatus(500);
-            //   });
-            res.send(data);
-        }
+    function callback(error, response, data) {
+      if (!error && response.statusCode == 200) {
+        res.send(data);
       }
-      request(options, callback);
-    // });
+    }
+    request(options, callback);
 });
+
+router.get('/playlistData', (req, res) => {
+  Playlist.find({}).sort({_id: 1}).exec()
+    .then(list => {
+      res.json(list);
+    }, err => {
+      res.sendStatus(404);
+    });
+});
+// router.delete('/store', (req, res) => {
+//   Playlist.remove({} , function (err){
+//   });
+// })
 
 module.exports = router;

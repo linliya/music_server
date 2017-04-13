@@ -12,8 +12,7 @@ const helper = require('../../helper');
 router.use(bodyParser.json());
 
 // 添加评论
-router.post('/comment/add/:id', (req, res) => {
-  let id = req.params.id;
+router.post('/comment/add', (req, res) => {
   let comment = req.body;
 
   Comment.create(comment)

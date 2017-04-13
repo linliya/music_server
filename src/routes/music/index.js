@@ -12,7 +12,6 @@ const helper = require('../../helper');
 
 router.use(bodyParser.json());
 
-
 router.get('/music/:id', (req, res) => {
     let id = req.params.id;
     Music.findOne({id: id}, (err, music) => {
@@ -32,22 +31,22 @@ router.get('/music/:id', (req, res) => {
 
       function callback(error, response, data) {
         if (!error && response.statusCode == 200) {
-            // let music = {
-            //   id: id,
-            //   name: data.songs[0].name,
-            //   singer: data.songs[0].artists[0].name,
-            //   album: data.songs[0].album.name,
-            //   playTime: data.songs[0].mMusic.playTime,
-            //   playUrl: data.songs[0].mp3Url,
-            //   pic: data.songs[0].album.blurPicUrl
-            // };
-            //
-            // Music.create(music)
-            //   .then(() => {
-            //     res.sendStatus(201);
-            //   }, err => {
-            //     res.sendStatus(500);
-            //   });
+            let music = {
+              id: id,
+              name: data.songs[0].name,
+              singer: data.songs[0].artists[0].name,
+              album: data.songs[0].album.name,
+              playTime: data.songs[0].mMusic.playTime,
+              playUrl: data.songs[0].mp3Url,
+              pic: data.songs[0].album.blurPicUrl
+            };
+
+            Music.create(music)
+              .then(() => {
+                res.sendStatus(201);
+              }, err => {
+                res.sendStatus(500);
+              });
             res.send(data);
         }
       }
