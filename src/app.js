@@ -6,6 +6,7 @@ const musicRouter = require('./routes/music');
 const playlistRouter = require('./routes/playlist');
 const commentRouter = require('./routes/comment');
 const playlistStoreRouter = require('./routes/playlist-store');
+const musicUploadRouter = require('./routes/music-upload');
 
 const config = require('../config.json');
 const cors = require('cors');
@@ -25,7 +26,7 @@ mongoose.connect(`mongodb://${config.dbHost}:${config.dbPort}/${config.dbName}`,
 
 // 解决跨域问题
 app.use(cors());
-app.use(bodyParser());
+app.use(bodyParser.json());
 
 // 创建静态文件public
 app.use(express.static(path.join(__dirname,'public')));
@@ -42,7 +43,7 @@ app.use(expressJwt({
 
 app.use(function (err, req, res, next) {
   if (err.name === "UnauthorizedError") {
-    res.status(401).send("invalid token");
+    res.sendStatustatus(401);
   }
 });
 
@@ -53,11 +54,7 @@ app.use(musicRouter);
 app.use(commentRouter);
 app.use(playlistRouter);
 app.use(playlistStoreRouter);
-
-app.get('/user/update/:id', function(req, res) {
-  let token = req.headers.authorization;
-  console.log(token);
-})
+app.use(musicUploadRouter);
 
 app.listen(3000, () => {
   console.log('Server listening 3000...');

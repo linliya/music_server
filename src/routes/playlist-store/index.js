@@ -16,38 +16,59 @@ router.post('/store/add', (req, res) => {
   let data = req.body;
 
   let playlist = {
+    id: data.id,
     userId: data.userId,
-    id: data.playlistId,
-    name: data.playlistName,
-    author: data.playlistCreator,
-    pic: data.playlistPic,
-    bg: data.playlistCreatorBg,
-    tracks: data.playlistSongs,
-    createTime: data.playlistCreateTime,
-    playCount: data.playCount
+    result: data.result
   };
 
   PlaylistStore.create(playlist)
     .then(() => {
-      console.log('add success');
+      console.log(playlist);
       res.sendStatus(201);
     }, err => {
       res.sendStatus(404);
     });
 });
 
+// 创建歌单
+router.post('/store/create', (req, res) => {
+  let playlist = req.body;
+
+  PlaylistStore.create(playlist)
+    .then(() => {
+      res.sendStatus(201);
+    }, err => {
+      console.log(err);
+      res.sendStatus(500);
+    })
+});
+
+// 获取歌单
 router.get('/store/:id', (req, res) => {
   let id = req.params.id;
 
   PlaylistStore.find({userId: id}).exec()
     .then(list => {
-      console.log(list);
       res.send(list);
     }, err => {
       res.sendStatus(404);
     });
 });
 
+// 删除歌单
+router.delete('/store/delete/:id', (req, res) => {
+  let id = req.params.id;
+
+  PlaylistStore.remove({id: id}).exec()
+    .then(() => {
+      console.log('删除成功');
+      res.sendStatus(204);
+    }, err => {
+      res.sendStatus(404);
+    })
+});
+
+// 删除全部歌单
 router.delete('/store', (req, res) => {
   PlaylistStore.remove({} , function (err){
   });

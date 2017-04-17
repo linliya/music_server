@@ -1,15 +1,9 @@
 const mongoose = require('mongoose');
 
 let playlistStoreSchema = new mongoose.Schema({
+  id: { type: String, require: true},
   userId: { type: String, require: true},
-  id: {type: String, require: true},
-  name: { type: String, require: true},
-  author: { type: String, require: true},
-  pic: { type: String, require: true},
-  bg: { type: String, require: true},
-  tracks: { type: Array, require: true},
-  createTime: { type: String, require: true},
-  playCount: { type: Number, require: true}
+  result: { type: Object, require: true}
 });
 
 let PlaylistStore = mongoose.model('PlaylistStore', playlistStoreSchema);
