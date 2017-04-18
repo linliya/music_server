@@ -38,7 +38,7 @@ router.post('/upload/music/:id', (req, res) => {
   form.on('end', () => {
     let filePath = path.join(form.uploadDir, arr['file']);
     let data = {
-      id: id,
+      userId: id,
       name: arr['name'],
       singer: arr['singer'],
       file: filePath
@@ -65,10 +65,10 @@ router.post('/upload/music/:id', (req, res) => {
   })
 });
 
-router.get('/upload/music', (req, res) => {
+router.get('/upload/music/:id', (req, res) => {
   let id = req.params.id;
 
-  MusicUpload.find({}).exec()
+  MusicUpload.find({userId: id}).exec()
     .then( list => {
       res.send(list);
     }, err => {
