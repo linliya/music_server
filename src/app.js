@@ -26,7 +26,8 @@ mongoose.connect(`mongodb://${config.dbHost}:${config.dbPort}/${config.dbName}`,
 
 // 解决跨域问题
 app.use(cors());
-app.use(bodyParser.json());
+
+app.use(bodyParser.json({limit: '50mb'}));
 
 // 创建静态文件public
 app.use(express.static(path.join(__dirname,'public')));
