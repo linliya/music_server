@@ -43,8 +43,9 @@ app.use(expressJwt({
 
 app.use(function (err, req, res, next) {
   if (err.name === "UnauthorizedError") {
-    res.sendStatustatus(401);
+    res.sendStatus(401);
   }
+  next();
 });
 
 

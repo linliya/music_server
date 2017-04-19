@@ -9,10 +9,10 @@ const PlaylistStore = require('../../models/playlist-store-model.js');
 
 const helper = require('../../helper');
 
-router.use(bodyParser.json());
 
 //收藏歌单
 router.post('/store/add', (req, res) => {
+  console.log(req.body);
   let data = req.body;
 
   let playlist = {
@@ -23,7 +23,7 @@ router.post('/store/add', (req, res) => {
 
   PlaylistStore.create(playlist)
     .then(() => {
-      console.log(playlist);
+      // console.log(playlist);
       res.sendStatus(201);
     }, err => {
       res.sendStatus(404);
