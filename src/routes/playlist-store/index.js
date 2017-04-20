@@ -11,7 +11,6 @@ const helper = require('../../helper');
 
 //收藏歌单
 router.post('/store/add', (req, res) => {
-  console.log(req.body);
   let data = req.body;
 
   let playlist = {
@@ -20,13 +19,24 @@ router.post('/store/add', (req, res) => {
     result: data.result
   };
 
-  PlaylistStore.create(playlist)
-    .then(() => {
-      // console.log(playlist);
-      res.sendStatus(201);
-    }, err => {
-      res.sendStatus(404);
-    });
+  PlaylistStore.findOne({id: playlist.id}, (err, data) => {
+    if(err) {
+      return res.sendStatus(500);
+    }
+
+    if(data) {
+      return res.sendStatus(400);
+    }
+
+    if(!data) {
+      PlaylistStore.create(playlist)
+        .then(() => {
+          res.sendStatus(201);
+        }, err => {
+          res.sendStatus(404);
+        });
+    }
+  })
 });
 
 // 创建歌单
