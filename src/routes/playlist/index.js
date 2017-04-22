@@ -45,7 +45,7 @@ router.get('/main/playlist', (req, res) => {
 
     function callback(error, response, data) {
       if (!error && response.statusCode == 200) {
-          res.send(data);
+        res.send(data);
       }
     }
     request(options, callback);
@@ -57,7 +57,6 @@ router.get('/playlist/:id', (req, res) => {
 
       // 数据库中不存在,从接口获取
     let apiurl = 'http://music.163.com/api/playlist/detail?id='+ id;
-    console.log(apiurl);
     let options = {
       headers: {cookie: 'appver=1.5.0.75771', referer: 'http://music.163.com'},
       url: apiurl,
