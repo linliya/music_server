@@ -16,7 +16,8 @@ router.post('/store/add', (req, res) => {
   let playlist = {
     id: data.id,
     userId: data.userId,
-    result: data.result
+    result: data.result,
+    name: data.name
   };
 
   PlaylistStore.findOne({id: playlist.id}, (err, data) => {
