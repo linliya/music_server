@@ -16,11 +16,6 @@ router.use(bodyParser.json());
 router.get('/music/:id', (req, res) => {
     let id = req.params.id;
     Music.findOne({id: id}, (err, music) => {
-      // 数据库存在该歌曲
-      // if(music) {
-      //   return res.send(music);
-      // }
-
       // 数据库中不存在,从接口获取
       let apiurl = 'http://music.163.com/api/song/detail?id='+ id +'&ids=%5B'+ id + '%5D';
       let options = {
@@ -32,27 +27,31 @@ router.get('/music/:id', (req, res) => {
 
       function callback(error, response, data) {
         if (!error && response.statusCode == 200) {
-            // let music = {
-            //   id: id,
-            //   name: data.songs[0].name || '',
-            //   singer: data.songs[0].artists[0].name || '',
-            //   album: data.songs[0].album.name || '',
-            //   playTime: data.songs[0].mMusic.playTime || '',
-            //   playUrl: data.songs[0].mp3Url || '',
-            //   pic: data.songs[0].album.blurPicUrl || ''
-            // };
-            //
-            // Music.create(music)
-            //   .then(() => {
-                // res.sendStatus(201);
-              // }, err => {
-            //     res.sendStatus(500);
-            //   });
             res.send(data);
         }
       }
       request(options, callback);
     });
+});
+
+// 获取专辑详情
+router.get('/albums/:id', (req, res) => {
+    let id = req.params.id;
+    let apiurl = 'http://music.163.com/api/album/'+ id +'?ext=true&id='+ id +'&offset=0&total=true&limit=10';
+    let options = {
+      headers: {cookie: 'appver=1.5.0.75771', referer: 'http://music.163.com'},
+      url: apiurl,
+      method: 'GET',
+      json: true
+    };
+
+    function callback(error, response, data) {
+      if (!error && response.statusCode == 200) {
+
+          res.send(data);
+      }
+    }
+    request(options, callback);
 });
 
 router.get('/music/lyric/:id', (req, res) => {

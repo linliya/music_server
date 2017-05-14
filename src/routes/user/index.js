@@ -206,7 +206,6 @@ router.post('/search', (req, res) => {
     let limit = req.body.limit;
     let type = req.body.type;
     let apiurl = 'http://music.163.com/api/search/pc?s='+ s +'&offset='+ offset +'&limit=' + limit + '&type=' + type;
-    console.log(apiurl);
     let options = {
       headers: {cookie: 'appver=1.5.0.75771', referer: 'http://music.163.com'},
       url: apiurl,
@@ -216,7 +215,6 @@ router.post('/search', (req, res) => {
 
     function callback(error, response, data) {
       if (!error && response.statusCode == 200) {
-          console.log('------接口数据------',data);
           res.send(data);
       }
     }
@@ -233,77 +231,6 @@ router.get('/user', (req, res) => {
     });
 });
 
-// 新增用户
-router.post('/user', (req, res) => {
-  let schema = {
-    properties: {
-      username: {
-        type: 'string'
-      },
-      password: {
-        type: 'number'
-      },
-      name: {
-        type: 'string'
-      },
-      email: {
-        type: 'string'
-      },
-      tel: {
-        type: 'string'
-      }
-    },
-    required: ['username', 'password']
-  };
-  // 获取意欲新增用户内容，并进行检验
-  let newUser = req.body;
-  let [validated, errors] = helper.ajvCompileAndValid(schema, newUser);
-  if (!validated) {
-    res.status(400).json(errors);
-    return;
-  }
-
-  // 用户名长度应介于6-16之间
-  if(newUser.username.length < 6 || newUser.username.length > 16) {
-    res.status(400).json(errors);
-    return;
-  }
-
-  // 新增用户数据结构没问题，则进行数据库添加
-  User.create(newUser)
-    .then(() => {
-      res.sendStatus(201);
-    }, err => {
-      res.sendStatus(500);
-    });
-});
-
-// router.get('/user/:id', (req, res) => {
-//   // 获取id
-//   let id = req.params.id;
-//   // 根据id进行查询并处理结果
-//   User.findById(id).exec()
-//     .then(user => {
-//       res.json(user);
-//     }, err => {
-//       console.error(err);
-//       res.sendStatus(404);
-//     });
-// });
-
-// 删除用户
-router.delete('/user/:id', (req, res) => {
-  // 获取id
-  let id = req.params.id;
-  // 根据id进行数据的操作
-  User.findByIdAndRemove(id).exec()
-    .then(() => {
-      res.sendStatus(204);
-    }, err => {
-      console.error(err);
-      res.sendStatus(404);
-    });
-});
 
 // 更新用户信息
 router.put('/user/:id', (req, res) => {
