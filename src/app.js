@@ -40,7 +40,7 @@ app.use(expressJwt({
     }
     return null;
   }
-}).unless({path: ["/user/login","/user/register", "/user"]}));
+}).unless({path: ["/user/login","/main/playlist", "/user"]}));
 
 app.use(function (err, req, res, next) {
   if (err.name === "UnauthorizedError") {

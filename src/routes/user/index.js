@@ -200,6 +200,60 @@ router.get('/user/:id', (req, res) => {
     });
 });
 
+
+router.get('/testmusic', (req, res) => {
+
+  function encode(id){
+    let md5 = crypto.createHash('md5');
+    var magic = _bytearray('3go8&$8*3*3h0k(2)2');
+    var song_id = _bytearray(id.toString());
+    var len = magic.length;
+    for(var i=0;i<song_id.length;i++){
+        song_id[i] = song_id[i] ^ magic[i % len]
+    }
+    song_id = _bytestring(song_id);
+    let end_psw= md5.update(song_id).digest('hex');
+    console.log(end_psw);
+    return end_psw.replace(/\//g, "_").replace(/\+/g, "-");
+  }
+
+function _bytearray(str){
+  var res = [];
+  for(var i=0;i<str.length;i++){
+      res.push(str.substr(i,1).charCodeAt());
+  }
+  return res;
+}
+
+function _bytestring(array){
+  var res = "";
+  for(var x in array){
+      res += String.fromCharCode(array[x]);
+  }
+  return res;
+}
+
+  let id = '28377211';
+
+  let encodedId = encode(id);
+
+  let apiurl = 'http://m2.music.126.net/'+ encodedId +'/'+ id +'.mp3';
+  let options = {
+    headers: {cookie: 'appver=1.5.0.75771', referer: 'http://music.163.com'},
+    url: apiurl,
+    method: 'GET',
+    json: true
+  };
+
+  function callback(error, response, data) {
+    if (!error && response.statusCode == 200) {
+        res.send(data);
+        console.log(data);
+    }
+  }
+  request(options, callback);
+});
+
 router.post('/search', (req, res) => {
     let s = req.body.s;
     let offset = req.body.offset;
