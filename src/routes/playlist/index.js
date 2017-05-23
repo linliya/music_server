@@ -17,7 +17,7 @@ router.get('/playlist/', (req, res) => {
 
     let encode_cat = encodeURI(cat);
 
-    let apiurl = 'http://music.163.com/api/playlist/list?cat=' + encode_cat + '&order='+ order +'&total=true&limit=20';
+    let apiurl = 'http://music.163.com/api/playlist/list?cat=' + encode_cat + '&order='+ order +'&total=true&limit=1000';
     let options = {
       headers: {cookie: 'appver=1.5.0.75771', referer: 'http://music.163.com'},
       url: apiurl,
