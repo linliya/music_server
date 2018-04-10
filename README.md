@@ -1,1 +1,5 @@
-# project_music
+#### 音乐播放网站服务端
+
+##### 采用express+mongoDB搭建，调用的是网易云音乐的接口
+
+
